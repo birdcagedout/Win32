@@ -2,7 +2,7 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>C:\Dev\win32\Project15TextOut\x64\Debug\Project15TextOut.exe</FullPath>
+      <FullPath>C:\Dev\Win32\Project15TextOut\x64\Debug\Project15TextOut.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles />

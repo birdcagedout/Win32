@@ -1,0 +1,4 @@
+﻿  pch.cpp
+  Project15CreateFont.cpp
+C:\Dev\Win32\Project15CreateFont\Project15CreateFont.cpp(32,10): warning C4101: 'hBrush' :참조되지 않은 지역 변수입니다.
+  Project15CreateFont.vcxproj -> C:\Dev\Win32\Project15CreateFont\x64\Debug\Project15CreateFont.exe

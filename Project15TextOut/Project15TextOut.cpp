@@ -31,20 +31,42 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		wchar_t str[64];
 		int len;
 
-		// 글자 출력
+		// 글자 출력 : TextOut, DrawText
 		// TextOut(DC, x시작, y시작, 문자열, 문자개수)
-		//TextOut(h_dc, 10, 10, L"Hello", 5);
+		// TextOut(h_dc, 10, 10, L"Hello", 5);
 
 		// 구구단을 출력하기에 formatted string이 필요한데
 		// 콘솔의 printf와 같이 메모리에 formatted string을 저장하는 sprintf를 사용
 		// 단, 유니코드라서 wsprintf사용
+
+		// 글자색=하늘색, 글자여백=투명
 		SetTextColor(h_dc, RGB(0, 100, 200));
 		SetBkMode(h_dc, TRANSPARENT);
-		for (int i = 1; i <= 9; i++) {
-			len = wsprintf(str, L"2 * %d = %2d", i, i * 2);
-			TextOut(h_dc, 100, 50 + i*20, str, len);
+		
+		// 제목
+		HFONT h_headFont = CreateFont(30, 0, 0, 0, FW_BOLD, FALSE, FALSE, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS,
+									CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, L"맑은 고딕");
+		HGDIOBJ h_bodyFont = CreateFont(20, 0, 0, 0, FW_NORMAL, FALSE, FALSE, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS,
+									CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, L"맑은 고딕");
+		HGDIOBJ h_oldFont = SelectObject(h_dc, h_headFont);
+		//TextOut(h_dc, 450, 20, L"구구단", 3);
+
+		// 글자출력 : DrawText = rect 내 정렬 가능
+		RECT r = { 0, 0, 1000, 50 };
+		FillRect(h_dc, &r, (HBRUSH)GetStockObject(DKGRAY_BRUSH));
+		DrawText(h_dc, L"구구단", 3, &r, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+
+		SelectObject(h_dc, h_bodyFont);
+		for (int j = 2; j <= 9; j++) {
+			for (int i = 1; i <= 9; i++) {
+				len = wsprintf(str, L"%d * %d = %2d", j, i, j *i);
+
+				TextOut(h_dc, 100 + (j-2) * 100, 50 + i * 20, str, len);
+			}
 		}
 
+		DeleteObject(h_headFont);
+		DeleteObject(h_bodyFont);
 		EndPaint(hWnd, &ps);
 		return 0;
 	}
@@ -137,7 +159,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-	  CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+	  500, 300, 1000, 500, nullptr, nullptr, hInstance, nullptr);
 
    if (!hWnd)
    {
