@@ -19,11 +19,9 @@ LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 
-// Direct2D 사용
-#include <d2d1.h>
-// IWICImagingFactory 추가
-#include <wincodec.h>
-
+//=============================================================================================
+#include <d2d1.h>			// Direct2D 사용
+#include <wincodec.h>		// IWICImagingFactory 추가
 #include <windows.h>		// Sleep(밀리세컨드)
 
 #pragma comment(lib, "D2D1.lib")		// Direct2D에서 자주 사용하는 namespace 생략하도록 설정
@@ -64,9 +62,9 @@ int LoadMyImage(HWND ah_Wnd, ID2D1RenderTarget* ap_target, const wchar_t* ap_pat
 	IWICBitmapFrameDecode* p_frame = NULL;		// 특정 이미지
 	IWICFormatConverter* p_converter = NULL;	// 이미지 컨버터
 
-	int result = 0;						// 그림 파일을 읽은 결과 값 (0이면 그림 읽기 실패, 1이면 그림 읽기 성공)
+	int result = 0;								// 그림 파일을 읽은 결과 값 (0=실패, 1=성공)
 	
-	// WIC용 Factory 객체를 사용하여 이미지 디코더 객체를 생성
+	// WIC용 Factory 객체를 사용하여 ==> 이미지 디코더 객체(p_decoder) 생성
 	if (p_wicFactory->CreateDecoderFromFilename(ap_path, NULL, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &p_decoder) == S_OK) {
 		
 		// 파일을 구성하는 이미지 중에서 첫번째 이미지를 선택한다.
@@ -74,7 +72,7 @@ int LoadMyImage(HWND ah_Wnd, ID2D1RenderTarget* ap_target, const wchar_t* ap_pat
 			
 			if (p_decoder->GetFrame(nImageIndex, &p_frame) == S_OK) {
 
-				// IWICBitmap형식의 비트맵을 ID2D1Bitmap형식으로 변환하기 위한 객체 생성
+				// IWICBitmap형식의 비트맵을 ID2D1Bitmap형식으로 변환하기 위한 ==> p_converter 객체 생성
 				if (p_wicFactory->CreateFormatConverter(&p_converter) == S_OK) {
 
 					// 선택된 그림을 어떤 형식의 비트맵으로 변환할 것인지 설정한다.
