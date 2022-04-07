@@ -222,7 +222,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	if (uMsg == WM_CREATE) {
 		OnCreate(hWnd);
+		SetWindowLong(hWnd, GWL_STYLE, GetWindowLong(hWnd, GWL_STYLE) & ~WS_MINIMIZEBOX);			// Minimize 버튼 disable
+		SetWindowLong(hWnd, GWL_STYLE, GetWindowLong(hWnd, GWL_STYLE) & ~WS_MAXIMIZEBOX);			// Maximize 버튼 disable
+		EnableMenuItem(GetSystemMenu(hWnd, FALSE), SC_CLOSE, MF_BYCOMMAND | MF_ENABLED);			// Close 버튼 enable
 		return 0;
+		INT_MAX;
 	}
 	else if (uMsg == WM_LBUTTONDOWN) {
 

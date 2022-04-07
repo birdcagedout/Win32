@@ -1,4 +1,4 @@
 ﻿  pch.cpp
   Project17Direct2DImage2.cpp
-C:\Dev\Win32\Project17Direct2DImage2\Project17Direct2DImage2.cpp(234,17): warning C4244: '인수': 'WPARAM'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Dev\Win32\Project17Direct2DImage2\Project17Direct2DImage2.cpp(238,17): warning C4244: '인수': 'WPARAM'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   Project17Direct2DImage2.vcxproj -> C:\Dev\Win32\Project17Direct2DImage2\x64\Debug\Project17Direct2DImage2.exe
