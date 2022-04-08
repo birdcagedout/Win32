@@ -34,8 +34,7 @@ D2D1_RECT_F g_imageRect;				// 이미지 출력 영역
 D2D1_POINT_2F g_centerPos;				// 회전시 중심점
 float g_degree = 0.0f;					// 회전 각도(0~360도)
 int g_imageIndex = 0;					// smile.gif 프레임 인덱스(0~25)
-//const wchar_t *g_pImagePath = L"test_672_504.png";
-const wchar_t* g_pImagePath = L"smile.gif";
+const wchar_t* g_pImageName = L"smile.gif";
 
 
 // 이미지 크기에 맞게 Render Target 크기를 (재)조정
@@ -65,7 +64,7 @@ void ResizeTarget(IWICBitmapFrameDecode* a_pImageFrame)
 // IWICBitmap으로부터 D2D1Bitmap 만들기
 int MakeD2D1Bitmap(IWICImagingFactory* a_pWicFactory, IWICBitmapFrameDecode* a_pImageFrame)
 {
-	// 컨버터 객체
+	// converter 객체
 	IWICFormatConverter* p_converter;
 
 	// 반환값 (성공=1, 실패=0)
@@ -75,6 +74,9 @@ int MakeD2D1Bitmap(IWICImagingFactory* a_pWicFactory, IWICBitmapFrameDecode* a_p
 	if (a_pWicFactory->CreateFormatConverter(&p_converter) == S_OK) {
 
 		// 비트맵 포맷 설정(초기화)
+		// Initialize(비트맵src, 포맷dst, 기본값, NULL, 0.0f, 기본값)
+		// Alpha값을 고려하여 미리 RGB에 곱해진 값			= GUID_WICPixelFormat32bppPBGRA
+		// Alpha값이 없거나 무시하여 RGB값만 고려한 경우	= GUID_WICPixelFormat32bppBGR
 		if (p_converter->Initialize(a_pImageFrame, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, NULL, 0.0f, WICBitmapPaletteTypeCustom) == S_OK) {
 
 			// IWICBitmap ==> ID2D1Bitmap
@@ -82,7 +84,7 @@ int MakeD2D1Bitmap(IWICImagingFactory* a_pWicFactory, IWICBitmapFrameDecode* a_p
 				result = 1;
 			}
 		}
-		// 변환객체 해제
+		// converter 해제
 		p_converter->Release();
 	}
 	return result;
@@ -110,7 +112,8 @@ int LoadMyImage()
 	int result = 0;
 
 	// 2. decoder 생성
-	if (p_wicFactory->CreateDecoderFromFilename(g_pImagePath, NULL, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &p_decoder) == S_OK) {
+	// CreateDecoderFromFilename(파일이름, NULL, 읽기/쓰기, 기본값, 디코더)
+	if (p_wicFactory->CreateDecoderFromFilename(g_pImageName, NULL, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &p_decoder) == S_OK) {
 
 		// 3. decoder의 GetFrame()으로 파일 중 g_imageIndex번째의 이미지 얻기
 		if (p_decoder->GetFrame(g_imageIndex, &p_frame) == S_OK) {
@@ -119,7 +122,7 @@ int LoadMyImage()
 			ResizeTarget(p_frame);
 
 			// IWICBitmap ==> D2D1Bitmap
-			result = MakeD2D1Bitmap(p_wicFactory, p_frame);
+			result = MakeD2D1Bitmap(p_wicFactory, p_frame);		// g_pBitmap에 bitmap이미지 저장
 			p_frame->Release();
 		}
 		p_decoder->Release();

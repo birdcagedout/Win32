@@ -60,7 +60,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		// 4K에서 배율 125% : [Screen: 3072, 1728] [ScreenFull: 3072, 1665] [titlebar: 23] [num_monitor: 1]
 		// 4K에서 배율 150% : [Screen: 2560, 1440] [ScreenFull: 2560, 1377] [titlebar: 23] [num_monitor: 1]
 		
-
+		
 		/* 실험5. 선그리기*/
 		g_isClicked = 1;
 

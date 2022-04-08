@@ -1,0 +1,5 @@
+﻿  pch.cpp
+  Win32Class1.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppCommon.targets(700,5): error MSB6006: "CL.exe"이(가) 종료되었습니다(코드: 2).
+C:\Dev\Win32\Win32Class1\Win32Class1.cpp(25,13): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다.
+C:\Dev\Win32\Win32Class1\Win32Class1.cpp(25,1): error C2365: 'wcscpy_s': 재정의: 이전 정의는 '함수'입니다.
