@@ -37,25 +37,79 @@ HBRUSH g_hOldBrush;
 
 
 
-
-class MyClientDC
+// 클래스화 작업 : 기본(부모)추상클래스
+class MyDC
 {
 protected:
 	HDC m_hDC = NULL;
 	HWND m_hWnd = NULL;
 
 public:
-	MyClientDC(HWND a_hWnd)
+	MyDC(HWND a_hWnd)
 	{
 		m_hWnd = a_hWnd;
-		HDC m_hDC = GetDC(a_hWnd);
 	}
-	~MyClientDC()
+	virtual ~MyDC()
+	{
+	}
+
+	HGDIOBJ SelectObject(HGDIOBJ a_hObj)
+	{
+		return ::SelectObject(m_hDC, a_hObj);
+	}
+
+	HGDIOBJ GetCurrentObject(UINT a_OBJ)
+	{
+		return ::GetCurrentObject(m_hDC, a_OBJ);
+	}
+
+	void Rectangle(int x1, int y1, int x2, int y2)
+	{
+		::Rectangle(m_hDC, x1, y1, x2, y2);
+	}
+
+	void Ellipse(int x1, int y1, int x2, int y2)
+	{
+		::Ellipse(m_hDC, x1, y1, x2, y2);
+	}
+};
+
+
+
+// 클래스화 작업 : 파생(자식)클래스
+// WM_LBUTTONDOWN 에서 그리기 객체 만들 때 사용
+class MyClientDC : public MyDC
+{
+public:
+	MyClientDC(HWND a_hWnd) : MyDC(a_hWnd)
+	{
+		m_hDC = GetDC(m_hWnd);
+	}
+	virtual ~MyClientDC()
 	{
 		ReleaseDC(m_hWnd, m_hDC);
 	}
 };
 
+
+
+// 클래스화 작업 : 파생(자식)클래스
+// WM_PAINT 에서 그리기 객체 만들 때 사용
+class MyPaintDC : public MyDC
+{
+protected:
+	PAINTSTRUCT m_ps;
+
+public:
+	MyPaintDC(HWND a_hWnd) : MyDC(a_hWnd)
+	{
+		m_hDC = BeginPaint(m_hWnd, &m_ps);
+	}
+	virtual ~MyPaintDC()
+	{
+		EndPaint(m_hWnd, &m_ps);
+	}
+};
 
 
 
@@ -82,25 +136,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 
 		
-		
-		HDC hDC = GetDC(hWnd);
-		g_hOldPen = (HPEN)GetCurrentObject(hDC, OBJ_PEN);
-		g_hOldBrush = (HBRUSH)SelectObject(hDC, GetStockObject(NULL_BRUSH));
+		// 클래스로 만든 dc
+		MyClientDC dc(hWnd);
+
+		g_hOldPen = (HPEN)dc.GetCurrentObject(OBJ_PEN);
+		g_hOldBrush = (HBRUSH)dc.SelectObject(GetStockObject(NULL_BRUSH));
 
 		// Ctrl키 + 클릭 = 원
 		if (wParam & MK_CONTROL) {
-			SelectObject(hDC, g_hRedPen);
-			Ellipse(hDC, x - 15, y - 15, x + 15, y + 15);
+			dc.SelectObject(g_hRedPen);
+			dc.Ellipse(x - 15, y - 15, x + 15, y + 15);
 		}
 		// 그냥클릭 = 사각형
 		else {
-			SelectObject(hDC, g_hGreenPen);
-			Rectangle(hDC, x - 15, y - 15, x + 15, y + 15);
+			dc.SelectObject(g_hGreenPen);
+			dc.Rectangle(x - 15, y - 15, x + 15, y + 15);
 		}
 		
-		SelectObject(hDC, g_hOldPen);
-		SelectObject(hDC, g_hOldBrush);
-		ReleaseDC(hWnd, hDC);
+		dc.SelectObject(g_hOldPen);
+		dc.SelectObject(g_hOldBrush);
 	}
 	else if (uMsg == WM_RBUTTONDOWN) {
 
@@ -109,30 +163,28 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	}
 	else if (uMsg == WM_PAINT) {
-		PAINTSTRUCT ps;
-		HDC hDC = BeginPaint(hWnd, &ps);
+		MyPaintDC dc(hWnd);
 
-		g_hOldPen = (HPEN)GetCurrentObject(hDC, OBJ_PEN);
-		g_hOldBrush = (HBRUSH)SelectObject(hDC, GetStockObject(NULL_BRUSH));
+		g_hOldPen = (HPEN)dc.GetCurrentObject(OBJ_PEN);
+		g_hOldBrush = (HBRUSH)dc.SelectObject(GetStockObject(NULL_BRUSH));
 
 		ObjectData* p = g_dataList;
 
 		for (int i = 0; i < g_dataCount; i++ ) {
 
 			if (p->type == 0) {
-				SelectObject(hDC, g_hGreenPen);
-				Rectangle(hDC, p->x - 15, p->y - 15, p->x + 15, p->y + 15);
+				dc.SelectObject(g_hGreenPen);
+				dc.Rectangle(p->x - 15, p->y - 15, p->x + 15, p->y + 15);
 			}
 			else {
-				SelectObject(hDC, g_hRedPen);
-				Ellipse(hDC, p->x - 15, p->y - 15, p->x + 15, p->y + 15);
+				dc.SelectObject(g_hRedPen);
+				dc.Ellipse(p->x - 15, p->y - 15, p->x + 15, p->y + 15);
 			}
 			p++;
 		}
 
-		SelectObject(hDC, g_hOldPen);
-		SelectObject(hDC, g_hOldBrush);
-		EndPaint(hWnd, &ps);
+		dc.SelectObject(g_hOldPen);
+		dc.SelectObject(g_hOldBrush);
 		return 0;
 	}
 	else if (uMsg == WM_DESTROY) {
@@ -146,13 +198,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 
 
-
-
-
-int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
-	_In_opt_ HINSTANCE hPrevInstance,
-	_In_ LPWSTR    lpCmdLine,
-	_In_ int       nCmdShow)
+int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
